@@ -3,6 +3,7 @@ package com.vanilla.account.service.impl;
 import com.vanilla.account.dto.request.AccountRequestDto;
 import com.vanilla.account.dto.response.AccountResponseDto;
 import com.vanilla.account.entity.Account;
+import com.vanilla.account.exception.AccountNotFoundException;
 import com.vanilla.account.mapper.AccountMapper;
 import com.vanilla.account.repository.AccountRepository;
 import com.vanilla.account.service.AccountService;
@@ -26,6 +27,20 @@ public class AccountServiceImpl implements AccountService {
         Account account = accountMapper.toEntity(requestDto);
         accountRepository.save(account);
         log.info("Account created with accountNumber: {}", account.getAccountNumber());
+        return accountMapper.toDto(account);
+    }
+
+    @Transactional(readOnly = true)
+    public AccountResponseDto getAccountByNumber(String accountNumber) {
+        log.info("Fetching account details for accountNumber: {}", accountNumber);
+
+        Account account = accountRepository.findByAccountNumber(accountNumber)
+                .orElseThrow(() -> {
+                    log.warn("Account not found: {}", accountNumber);
+                    return new AccountNotFoundException("Account not found: " + accountNumber);
+                });
+
+        log.info("Account found: {}", account.getAccountNumber());
         return accountMapper.toDto(account);
     }
 }
