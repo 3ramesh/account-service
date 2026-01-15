@@ -5,6 +5,7 @@ import com.vanilla.account.dto.request.TransferRequestDto;
 import com.vanilla.account.dto.response.AccountResponseDto;
 import com.vanilla.account.dto.response.TransferResponseDto;
 import com.vanilla.account.entity.Account;
+import com.vanilla.account.exception.AccountAlreadyExistsException;
 import com.vanilla.account.exception.AccountNotFoundException;
 import com.vanilla.account.exception.InsufficientBalanceException;
 import com.vanilla.account.mapper.AccountMapper;
@@ -30,6 +31,7 @@ public class AccountServiceImpl implements AccountService {
     @Transactional
     public AccountResponseDto createAccount(AccountRequestDto requestDto) {
         log.info("Creating account for owner: {}", requestDto.ownerName());
+        validateAccountNumber(requestDto.accountNumber());
         Account account = accountMapper.toEntity(requestDto);
         accountRepository.save(account);
         log.info("Account created with accountNumber: {}", account.getAccountNumber());
@@ -96,6 +98,13 @@ public class AccountServiceImpl implements AccountService {
                     log.error("Account not found: {}", accountNumber);
                     return new AccountNotFoundException("Account not found: " + accountNumber);
                 });
+    }
+
+
+    private void validateAccountNumber(String accountNumber) {
+        if (accountRepository.existsByAccountNumber(accountNumber)) {
+            throw new AccountAlreadyExistsException("Account already exists with accountNumber: " + accountNumber);
+        }
     }
 
 }
