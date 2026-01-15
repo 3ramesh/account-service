@@ -1,29 +1,18 @@
 package com.vanilla.account.dto.request;
 
-import com.vanilla.account.dto.common.ModelBase;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class AccountRequestDto extends ModelBase {
+public record AccountRequestDto(
 
-    @NotBlank
-    private String accountNumber;
+        @NotBlank(message = "Account number must not be blank") String accountNumber,
 
-    @NotBlank
-    private String ownerName;
+        @NotBlank(message = "Owner name must not be blank") String ownerName,
 
-    @NotNull
-    @PositiveOrZero
-    private BigDecimal balance;
+        @NotNull(message = "Balance must not be null") @PositiveOrZero(message = "Balance must be zero or positive") BigDecimal balance
+
+) {
 }
